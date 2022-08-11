@@ -2,7 +2,7 @@
 // Created by haochen on 22/08/11.
 //
 
-#include "urdf/model.h"
+#include "../urdf/urdf//model.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -10,15 +10,13 @@
 #include <exception>
 #include "kdl/tree.hpp"
 #include <kdl/frames_io.hpp>
-#include "kdl_parser.cpp"
-#include "../trac_ik/nlopt_ik.hpp"
+#include "../src/kdl_parser.hpp"
 #include <mutex>
 #include <memory>
-
-using namespace urdf;
+#include "../src/kdl_tl.hpp"
 
 int main() {
-    std::ifstream file("/home/haochen/Desktop/code/src/test/yumi.urdf");
+    std::ifstream file("D:\\chen\\dev\\trac_ik_build\\test\\yumi.urdf");
 
     if (!file.is_open()) {
         std::cout << "cannot open the urdf file" << std::endl;
@@ -26,9 +24,10 @@ int main() {
     }
     std::string xml_string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     std::cout << xml_string << std::endl;
-    urdf::Model robot_model;
-    auto p = robot_model.initString(xml_string);
-    std::cout << p << std::endl;
+    urdf::UrdfModel robot_model_o;
+    urdf::UrdfModel robot_model;
+    robot_model = *(robot_model_o.fromUrdfStr(xml_string));
+//    std::cout << robot_model << std::endl;
     KDL::Tree tree;
     if (!kdl_parser::treeFromUrdfModel(robot_model, tree))
         std::cout << "Failed to extract kdl tree from xml robot description";
@@ -39,7 +38,7 @@ int main() {
         std::cout << "Couldn't find chain " << base_link.c_str() << " to " << tip_link.c_str() << std::endl;
     std::vector<KDL::Segment> chain_segs = chain.segments;
 
-    urdf::JointConstSharedPtr joint;
+    std::shared_ptr<urdf::Joint> joint;
 
     std::vector<double> l_bounds, u_bounds;
 
@@ -48,20 +47,20 @@ int main() {
     lb.resize(chain.getNrOfJoints());
     ub.resize(chain.getNrOfJoints());
 
-    uint joint_num = 0;
+    unsigned int joint_num = 0;
     for (unsigned int i = 0; i < chain_segs.size(); ++i) {
         joint = robot_model.getJoint(chain_segs[i].getJoint().getName());
-        if (joint->type != urdf::Joint::UNKNOWN && joint->type != urdf::Joint::FIXED) {
+        if (joint->type != urdf::UNKNOWN && joint->type != urdf::FIXED) {
             joint_num++;
             float lower, upper;
             int hasLimits;
-            if (joint->type != urdf::Joint::CONTINUOUS) {
+            if (joint->type != urdf::CONTINUOUS) {
                 if (joint->safety) {
-                    lower = std::max(joint->limits->lower, joint->safety->soft_lower_limit);
-                    upper = std::min(joint->limits->upper, joint->safety->soft_upper_limit);
+                    lower = std::max(joint->limits.value()->lower, joint->safety.value()->lower_limit);
+                    upper = std::min(joint->limits.value()->upper, joint->safety.value()->upper_limit);
                 } else {
-                    lower = joint->limits->lower;
-                    upper = joint->limits->upper;
+                    lower = joint->limits.value()->lower;
+                    upper = joint->limits.value()->upper;
                 }
                 hasLimits = 1;
             } else {
@@ -80,7 +79,7 @@ int main() {
     }
     assert(chain.getNrOfJoints() == lb.data.size());
     assert(chain.getNrOfJoints() == ub.data.size());
-    std::unique_ptr<KDL::ChainJntToJacSolver> jacsolver;
-    jacsolver.reset(new KDL::ChainJntToJacSolver(chain));
 
+    std::unique_ptr<KDL::ChainJntToJacSolver> jacsolver;
+    std::unique_ptr<KDL::ChainIkSolverPos_TL> iksolver;
 }

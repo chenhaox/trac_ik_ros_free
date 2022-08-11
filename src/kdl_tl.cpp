@@ -30,6 +30,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "kdl_tl.hpp"
 #include <boost/date_time.hpp>
+#include <boost/math/tools/precision.hpp>
 #include <limits>
 
 namespace KDL
@@ -44,7 +45,7 @@ ChainIkSolverPos_TL::ChainIkSolverPos_TL(const Chain& _chain, const JntArray& _q
 
   reset();
 
-  for (uint i = 0; i < chain.segments.size(); i++)
+  for (unsigned int i = 0; i < chain.segments.size(); i++)
   {
     std::string type = chain.segments[i].getJoint().getTypeName();
     if (type.find("Rot") != std::string::npos)

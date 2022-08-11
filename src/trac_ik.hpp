@@ -72,7 +72,7 @@ namespace TRAC_IK {
             return initialized && !solutions.empty();
         }
 
-        bool getSolutions(std::vector<KDL::JntArray> &solutions_, std::vector<std::pair<double, uint> > &errors_) {
+        bool getSolutions(std::vector<KDL::JntArray> &solutions_, std::vector<std::pair<double, unsigned int> > &errors_) {
             errors_ = errors;
             return getSolutions(solutions_);
         }
@@ -87,7 +87,7 @@ namespace TRAC_IK {
 
         static double JointErr(const KDL::JntArray &arr1, const KDL::JntArray &arr2) {
             double err = 0;
-            for (uint i = 0; i < arr1.data.size(); i++) {
+            for (unsigned int i = 0; i < arr1.data.size(); i++) {
                 err += pow(arr1(i) - arr2(i), 2);
             }
 
@@ -132,7 +132,7 @@ namespace TRAC_IK {
 
         std::mutex mtx_;
         std::vector<KDL::JntArray> solutions;
-        std::vector<std::pair<double, uint> > errors;
+        std::vector<std::pair<double, unsigned int> > errors;
 
         std::thread task1, task2;
         KDL::Twist bounds;

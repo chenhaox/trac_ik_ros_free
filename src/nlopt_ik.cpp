@@ -66,7 +66,7 @@ namespace NLOPT_IK {
 
         if (!grad.empty()) {
             double v1[1];
-            for (uint i = 0; i < x.size(); i++) {
+            for (unsigned int i = 0; i < x.size(); i++) {
                 double original = vals[i];
 
                 vals[i] = original + jump;
@@ -97,7 +97,7 @@ namespace NLOPT_IK {
 
         if (!grad.empty()) {
             double v1[1];
-            for (uint i = 0; i < x.size(); i++) {
+            for (unsigned int i = 0; i < x.size(); i++) {
                 double original = vals[i];
 
                 vals[i] = original + jump;
@@ -128,7 +128,7 @@ namespace NLOPT_IK {
 
         if (!grad.empty()) {
             double v1[1];
-            for (uint i = 0; i < x.size(); i++) {
+            for (unsigned int i = 0; i < x.size(); i++) {
                 double original = vals[i];
 
                 vals[i] = original + jump;
@@ -143,7 +143,7 @@ namespace NLOPT_IK {
     }
 
 
-    void constrainfuncm(uint m, double *result, uint n, const double *x, double *grad, void *data) {
+    void constrainfuncm(unsigned int m, double *result, unsigned int n, const double *x, double *grad, void *data) {
         //Equality constraint auxilary function for Euclidean distance .
         //This also uses a small walk to approximate the gradient of the
         //constraint function at the current joint angles.
@@ -152,7 +152,7 @@ namespace NLOPT_IK {
 
         std::vector<double> vals(n);
 
-        for (uint i = 0; i < n; i++) {
+        for (unsigned int i = 0; i < n; i++) {
             vals[i] = x[i];
         }
 
@@ -162,12 +162,12 @@ namespace NLOPT_IK {
 
         if (grad != NULL) {
             std::vector<double> v1(m);
-            for (uint i = 0; i < n; i++) {
+            for (unsigned int i = 0; i < n; i++) {
                 double o = vals[i];
                 vals[i] = o + jump;
                 c->cartSumSquaredError(vals, v1.data());
                 vals[i] = o;
-                for (uint j = 0; j < m; j++) {
+                for (unsigned int j = 0; j < m; j++) {
                     grad[j * n + i] = (v1[j] - result[j]) / (2 * jump);
                 }
             }
@@ -192,12 +192,12 @@ namespace NLOPT_IK {
         }
         opt = nlopt::opt(nlopt::LD_SLSQP, _chain.getNrOfJoints());
 
-        for (uint i = 0; i < chain.getNrOfJoints(); i++) {
+        for (unsigned int i = 0; i < chain.getNrOfJoints(); i++) {
             lb.push_back(_q_min(i));
             ub.push_back(_q_max(i));
         }
 
-        for (uint i = 0; i < chain.segments.size(); i++) {
+        for (unsigned int i = 0; i < chain.segments.size(); i++) {
             std::string type = chain.segments[i].getJoint().getTypeName();
             if (type.find("Rot") != std::string::npos) {
                 if (_q_max(types.size()) >= std::numeric_limits<float>::max() &&
@@ -241,7 +241,7 @@ namespace NLOPT_IK {
         bool gradient = !grad.empty();
 
         double err = 0;
-        for (uint i = 0; i < x.size(); i++) {
+        for (unsigned int i = 0; i < x.size(); i++) {
             err += pow(x[i] - des[i], 2);
             if (gradient)
                 grad[i] = 2.0 * (x[i] - des[i]);
@@ -266,7 +266,7 @@ namespace NLOPT_IK {
 
         KDL::JntArray q(x.size());
 
-        for (uint i = 0; i < x.size(); i++)
+        for (unsigned int i = 0; i < x.size(); i++)
             q(i) = x[i];
 
         int rc = fksolver.JntToCart(q, currentPose);
@@ -311,7 +311,7 @@ namespace NLOPT_IK {
 
         KDL::JntArray q(x.size());
 
-        for (uint i = 0; i < x.size(); i++)
+        for (unsigned int i = 0; i < x.size(); i++)
             q(i) = x[i];
 
         int rc = fksolver.JntToCart(q, currentPose);
@@ -357,7 +357,7 @@ namespace NLOPT_IK {
 
         KDL::JntArray q(x.size());
 
-        for (uint i = 0; i < x.size(); i++)
+        for (unsigned int i = 0; i < x.size(); i++)
             q(i) = x[i];
 
         int rc = fksolver.JntToCart(q, currentPose);
@@ -453,7 +453,7 @@ namespace NLOPT_IK {
 
         std::vector<double> x(chain.getNrOfJoints());
 
-        for (uint i = 0; i < x.size(); i++) {
+        for (unsigned int i = 0; i < x.size(); i++) {
             x[i] = q_init(i);
 
             if (types[i] == KDL::BasicJointType::Continuous)
@@ -490,7 +490,7 @@ namespace NLOPT_IK {
 
         std::vector<double> artificial_lower_limits(lb.size());
 
-        for (uint i = 0; i < lb.size(); i++)
+        for (unsigned int i = 0; i < lb.size(); i++)
             if (types[i] == KDL::BasicJointType::Continuous)
                 artificial_lower_limits[i] = best_x[i] - 2 * M_PI;
             else if (types[i] == KDL::BasicJointType::TransJoint)
@@ -502,7 +502,7 @@ namespace NLOPT_IK {
 
         std::vector<double> artificial_upper_limits(lb.size());
 
-        for (uint i = 0; i < ub.size(); i++)
+        for (unsigned int i = 0; i < ub.size(); i++)
             if (types[i] == KDL::BasicJointType::Continuous)
                 artificial_upper_limits[i] = best_x[i] + 2 * M_PI;
             else if (types[i] == KDL::BasicJointType::TransJoint)
@@ -516,7 +516,7 @@ namespace NLOPT_IK {
             des = x;
         } else {
             des.resize(x.size());
-            for (uint i = 0; i < des.size(); i++)
+            for (unsigned int i = 0; i < des.size(); i++)
                 des[i] = q_desired(i);
         }
 
@@ -538,7 +538,7 @@ namespace NLOPT_IK {
 
             while (time_left > 0 && !aborted && progress < 0) {
 
-                for (uint i = 0; i < x.size(); i++)
+                for (unsigned int i = 0; i < x.size(); i++)
                     x[i] = fRand(artificial_lower_limits[i], artificial_upper_limits[i]);
 
                 opt.set_maxtime(time_left);
@@ -557,7 +557,7 @@ namespace NLOPT_IK {
         }
 
 
-        for (uint i = 0; i < x.size(); i++) {
+        for (unsigned int i = 0; i < x.size(); i++) {
             q_out(i) = best_x[i];
         }
 

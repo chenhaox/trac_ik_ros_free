@@ -35,74 +35,75 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainiksolvervel_pinv.hpp>
 
-namespace TRAC_IK
-{
-class TRAC_IK;
+#ifndef M_PI
+#define M_PI 3.141592538
+#endif //M_PI
+
+namespace TRAC_IK {
+    class TRAC_IK;
 }
 
-namespace KDL
-{
+namespace KDL {
 
-enum BasicJointType { RotJoint, TransJoint, Continuous };
+    enum BasicJointType {
+        RotJoint, TransJoint, Continuous
+    };
 
-class ChainIkSolverPos_TL
-{
-  friend class TRAC_IK::TRAC_IK;
+    class ChainIkSolverPos_TL {
+        friend class TRAC_IK::TRAC_IK;
 
-public:
-  ChainIkSolverPos_TL(const Chain& chain, const JntArray& q_min, const JntArray& q_max, double maxtime = 0.005, double eps = 1e-3, bool random_restart = false, bool try_jl_wrap = false);
+    public:
+        ChainIkSolverPos_TL(const Chain &chain, const JntArray &q_min, const JntArray &q_max, double maxtime = 0.005,
+                            double eps = 1e-3, bool random_restart = false, bool try_jl_wrap = false);
 
-  ~ChainIkSolverPos_TL();
+        ~ChainIkSolverPos_TL();
 
-  int CartToJnt(const KDL::JntArray& q_init, const KDL::Frame& p_in, KDL::JntArray& q_out, const KDL::Twist bounds = KDL::Twist::Zero());
+        int CartToJnt(const KDL::JntArray &q_init, const KDL::Frame &p_in, KDL::JntArray &q_out,
+                      const KDL::Twist bounds = KDL::Twist::Zero());
 
-  inline void setMaxtime(double t)
-  {
-    maxtime = t;
-  }
+        inline void setMaxtime(double t) {
+            maxtime = t;
+        }
 
-private:
-  const Chain chain;
-  JntArray q_min;
-  JntArray q_max;
+    private:
+        const Chain chain;
+        JntArray q_min;
+        JntArray q_max;
 
-  KDL::Twist bounds;
+        KDL::Twist bounds;
 
-  KDL::ChainIkSolverVel_pinv vik_solver;
-  KDL::ChainFkSolverPos_recursive fksolver;
-  JntArray delta_q;
-  double maxtime;
+        KDL::ChainIkSolverVel_pinv vik_solver;
+        KDL::ChainFkSolverPos_recursive fksolver;
+        JntArray delta_q;
+        double maxtime;
 
-  double eps;
+        double eps;
 
-  bool rr;
-  bool wrap;
+        bool rr;
+        bool wrap;
 
-  std::vector<KDL::BasicJointType> types;
+        std::vector<KDL::BasicJointType> types;
 
-  inline void abort()
-  {
-    aborted = true;
-  }
+        inline void abort() {
+            aborted = true;
+        }
 
-  inline void reset()
-  {
-    aborted = false;
-  }
+        inline void reset() {
+            aborted = false;
+        }
 
-  bool aborted;
+        bool aborted;
 
-  Frame f;
-  Twist delta_twist;
+        Frame f;
+        Twist delta_twist;
 
-  inline static double fRand(double min, double max)
-  {
-    double f = (double)rand() / RAND_MAX;
-    return min + f * (max - min);
-  }
+        inline static double fRand(double min, double max) {
+            double f = (double) rand() / RAND_MAX;
+            return min + f * (max - min);
+        }
 
 
-};
+    };
 
 /**
  * determines the rotation axis necessary to rotate from frame b1 to the
@@ -115,11 +116,10 @@ private:
  * \warning In contrast to standard KDL diff methods, the result of
  * diffRelative is w.r.t. frame b1 instead of frame a.
  */
-IMETHOD Twist diffRelative(const Frame & F_a_b1, const Frame & F_a_b2, double dt = 1)
-{
-  return Twist(F_a_b1.M.Inverse() * diff(F_a_b1.p, F_a_b2.p, dt),
-               F_a_b1.M.Inverse() * diff(F_a_b1.M, F_a_b2.M, dt));
-}
+    IMETHOD Twist diffRelative(const Frame &F_a_b1, const Frame &F_a_b2, double dt = 1) {
+        return Twist(F_a_b1.M.Inverse() * diff(F_a_b1.p, F_a_b2.p, dt),
+                     F_a_b1.M.Inverse() * diff(F_a_b1.M, F_a_b2.M, dt));
+    }
 
 }
 

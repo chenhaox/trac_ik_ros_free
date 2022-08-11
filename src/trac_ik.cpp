@@ -34,7 +34,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Geometry>
 #include <limits>
 #include "kdl_parser.hpp"
-#include <urdf/model.h>
+#include "../urdf/urdf/model.h"
 
 
 namespace TRAC_IK {
@@ -49,8 +49,9 @@ namespace TRAC_IK {
             std::cout << "cannot open the urdf file" << std::endl;
         }
         std::string xml_string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        urdf::Model robot_model;
-        robot_model.initString(xml_string);
+        urdf::UrdfModel robot_model_o;
+        urdf::UrdfModel robot_model;
+        robot_model = *(robot_model_o.fromUrdfStr(xml_string));
         KDL::Tree tree;
 
         if (!kdl_parser::treeFromUrdfModel(robot_model, tree))
@@ -61,27 +62,27 @@ namespace TRAC_IK {
 
         std::vector<KDL::Segment> chain_segs = chain.segments;
 
-        urdf::JointConstSharedPtr joint;
+        std::shared_ptr<urdf::Joint> joint;
 
         std::vector<double> l_bounds, u_bounds;
 
         lb.resize(chain.getNrOfJoints());
         ub.resize(chain.getNrOfJoints());
 
-        uint joint_num = 0;
+        unsigned int joint_num = 0;
         for (unsigned int i = 0; i < chain_segs.size(); ++i) {
             joint = robot_model.getJoint(chain_segs[i].getJoint().getName());
-            if (joint->type != urdf::Joint::UNKNOWN && joint->type != urdf::Joint::FIXED) {
+            if (joint->type != urdf::UNKNOWN && joint->type != urdf::FIXED) {
                 joint_num++;
                 float lower, upper;
                 int hasLimits;
-                if (joint->type != urdf::Joint::CONTINUOUS) {
+                if (joint->type != urdf::CONTINUOUS) {
                     if (joint->safety) {
-                        lower = std::max(joint->limits->lower, joint->safety->soft_lower_limit);
-                        upper = std::min(joint->limits->upper, joint->safety->soft_upper_limit);
+                        lower = std::max(joint->limits.value()->lower, joint->safety.value()->lower_limit);
+                        upper = std::min(joint->limits.value()->upper, joint->safety.value()->upper_limit);
                     } else {
-                        lower = joint->limits->lower;
-                        upper = joint->limits->upper;
+                        lower = joint->limits.value()->lower;
+                        upper = joint->limits.value()->upper;
                     }
                     hasLimits = 1;
                 } else {
@@ -124,7 +125,7 @@ namespace TRAC_IK {
         nl_solver.reset(new NLOPT_IK::NLOPT_IK(chain, lb, ub, maxtime, eps, NLOPT_IK::SumSq));
         iksolver.reset(new KDL::ChainIkSolverPos_TL(chain, lb, ub, maxtime, eps, true, true));
 
-        for (uint i = 0; i < chain.segments.size(); i++) {
+        for (unsigned int i = 0; i < chain.segments.size(); i++) {
             std::string type = chain.segments[i].getJoint().getTypeName();
             if (type.find("Rot") != std::string::npos) {
                 if (ub(types.size()) >= std::numeric_limits<float>::max() &&
@@ -143,7 +144,7 @@ namespace TRAC_IK {
 
     bool TRAC_IK::unique_solution(const KDL::JntArray &sol) {
 
-        for (uint i = 0; i < solutions.size(); i++)
+        for (unsigned int i = 0; i < solutions.size(); i++)
             if (myEqual(sol, solutions[i]))
                 return false;
         return true;
@@ -220,7 +221,7 @@ namespace TRAC_IK {
                 mtx_.lock();
                 if (unique_solution(q_out)) {
                     solutions.push_back(q_out);
-                    uint curr_size = solutions.size();
+                    unsigned int curr_size = solutions.size();
                     errors.resize(curr_size);
                     mtx_.unlock();
                     double err, penalty;
@@ -266,7 +267,7 @@ namespace TRAC_IK {
 
         bool improved = false;
 
-        for (uint i = 0; i < lb.data.size(); i++) {
+        for (unsigned int i = 0; i < lb.data.size(); i++) {
 
             if (types[i] == KDL::BasicJointType::TransJoint)
                 continue;
@@ -293,7 +294,7 @@ namespace TRAC_IK {
 
         bool improved = false;
 
-        for (uint i = 0; i < lb.data.size(); i++) {
+        for (unsigned int i = 0; i < lb.data.size(); i++) {
 
             if (types[i] == KDL::BasicJointType::TransJoint)
                 continue;
@@ -322,7 +323,7 @@ namespace TRAC_IK {
 
     double TRAC_IK::manipPenalty(const KDL::JntArray &arr) {
         double penalty = 1.0;
-        for (uint i = 0; i < arr.data.size(); i++) {
+        for (unsigned int i = 0; i < arr.data.size(); i++) {
             if (types[i] == KDL::BasicJointType::Continuous)
                 continue;
             double range = ub(i) - lb(i);

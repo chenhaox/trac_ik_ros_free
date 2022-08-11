@@ -18,27 +18,27 @@ namespace kdl_parser {
     }
 
 //// construct pose
-    KDL::Frame toKdl(urdf::Pose p) {
+    KDL::Frame toKdl(urdf::Transform p) {
         return KDL::Frame(toKdl(p.rotation), toKdl(p.position));
     }
 
 //// construct joint
-    KDL::Joint toKdl(urdf::JointSharedPtr jnt) {
-        KDL::Frame F_parent_jnt = toKdl(jnt->parent_to_joint_origin_transform);
+    KDL::Joint toKdl(shared_ptr<urdf::Joint> jnt) {
+        KDL::Frame F_parent_jnt = toKdl(jnt->parent_to_joint_transform);
 
         switch (jnt->type) {
-            case urdf::Joint::FIXED: {
+            case urdf::FIXED: {
                 return KDL::Joint(jnt->name, KDL::Joint::None);
             }
-            case urdf::Joint::REVOLUTE: {
+            case urdf::REVOLUTE: {
                 KDL::Vector axis = toKdl(jnt->axis);
                 return KDL::Joint(jnt->name, F_parent_jnt.p, F_parent_jnt.M * axis, KDL::Joint::RotAxis);
             }
-            case urdf::Joint::CONTINUOUS: {
+            case urdf::CONTINUOUS: {
                 KDL::Vector axis = toKdl(jnt->axis);
                 return KDL::Joint(jnt->name, F_parent_jnt.p, F_parent_jnt.M * axis, KDL::Joint::RotAxis);
             }
-            case urdf::Joint::PRISMATIC: {
+            case urdf::PRISMATIC: {
                 KDL::Vector axis = toKdl(jnt->axis);
                 return KDL::Joint(jnt->name, F_parent_jnt.p, F_parent_jnt.M * axis, KDL::Joint::TransAxis);
             }
@@ -52,7 +52,7 @@ namespace kdl_parser {
     }
 
 //// construct inertia
-    KDL::RigidBodyInertia toKdl(urdf::InertialSharedPtr i) {
+    KDL::RigidBodyInertia toKdl(std::optional<urdf::Inertial> i) {
         KDL::Frame origin = toKdl(i->origin);
 
         // the mass is frame independent
@@ -82,8 +82,8 @@ namespace kdl_parser {
 
 //
 //// recursive function to walk through tree
-    bool addChildrenToTree(urdf::LinkConstSharedPtr root, KDL::Tree &tree) {
-        std::vector<urdf::LinkSharedPtr> children = root->child_links;
+    bool addChildrenToTree(std::shared_ptr<urdf::Link> root, KDL::Tree &tree) {
+        std::vector<std::shared_ptr<urdf::Link>> children = root->child_links;
         std::cout << "Link " << root->name.c_str() << " had " << children.size() << " children" << std::endl;
 
         // constructs the optional inertia
@@ -97,7 +97,7 @@ namespace kdl_parser {
 
         // construct the kdl segment
         KDL::Segment sgm(root->name, jnt, toKdl(
-                root->parent_joint->parent_to_joint_origin_transform), inert);
+                root->parent_joint->parent_to_joint_transform), inert);
 
         // add segment to tree
         tree.addSegment(sgm, root->parent_joint->parent_link_name);
@@ -111,7 +111,7 @@ namespace kdl_parser {
         return true;
     }
 
-    bool treeFromUrdfModel(const urdf::ModelInterface &robot_model, KDL::Tree &tree) {
+    bool treeFromUrdfModel(const urdf::UrdfModel &robot_model, KDL::Tree &tree) {
         if (!robot_model.getRoot()) {
             return false;
         }

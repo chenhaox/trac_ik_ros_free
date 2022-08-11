@@ -4,8 +4,9 @@
 #include "src/trac_ik.hpp"
 
 int main() {
+    std::cout << "TEST" << std::endl;
     TRAC_IK::TRAC_IK iksolve("yumi_body", "yumi_link_7_r",
-                             "/home/haochen/Desktop/code/trac_ik/test/yumi.urdf",
+                             "D:\\chen\\dev\\trac_ik_build\\test\\yumi.urdf",
                              0.005,
                              1e-5,
                              TRAC_IK::Speed);
@@ -31,3 +32,4 @@ int main() {
 }
 
 //np.array([0.11055943340536382,-1.7745341313644831,-2.088530406574881,0.5317516210362633,-0.22859509185686763,-0.4601651803822982,-0.4273526410371647,])
+//0.110557,-1.77454,-2.08853,0.531752,-0.228595,-0.460168,-0.427349
