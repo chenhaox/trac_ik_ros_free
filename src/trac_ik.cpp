@@ -34,7 +34,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Geometry>
 #include <limits>
 #include "kdl_parser.hpp"
-#include "../urdf/urdf/model.h"
+#include "urdf/urdf/model.h"
 
 
 namespace TRAC_IK {

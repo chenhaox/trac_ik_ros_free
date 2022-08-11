@@ -13,17 +13,18 @@ set(SOURCES
         )
 
 SET(URDF_SRCS
-        src/urdf/common.cpp
-        src/urdf/joint.cpp
-        src/urdf/geometry.cpp
-        src/urdf/link.cpp
-        src/urdf/model.cpp
-        src/urdf/tinyxml.cpp
-        src/urdf/tinyxmlerror.cpp
-        src/urdf/tinyxmlparser.cpp
+        urdf/common.cpp
+        urdf/joint.cpp
+        urdf/geometry.cpp
+        urdf/link.cpp
+        urdf/model.cpp
+        urdf/tinyxml.cpp
+        urdf/tinyxmlerror.cpp
+        urdf/tinyxmlparser.cpp
         )
 
-add_executable(trac_ik main.cpp ${SOURCES} ${URDF_SRCS})
+include_directories("${CMAKE_SOURCE_DIR}/cpp/include/automobile_bits")
+include_directories("${CMAKE_SOURCE_DIR}/python_wrapper/")
 
 
 if (WIN32)

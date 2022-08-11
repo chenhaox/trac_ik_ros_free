@@ -2,7 +2,7 @@
 // Created by haochen on 22/08/11.
 //
 
-#include "../urdf/urdf//model.h"
+#include "urdf/urdf/model.h"
 #include <string>
 #include <fstream>
 #include <iostream>
