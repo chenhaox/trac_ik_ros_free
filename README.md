@@ -43,6 +43,10 @@ https://cmake.org/
 2. Build Using CMake
 
 
-## Linux
+## Linux (Ubuntu)
 
-To complete
+### Instal KDL, Boost, Eigen Dependencies
+
+```
+sudo apt install libeigen3-dev liborocos-kdl-dev
+```
