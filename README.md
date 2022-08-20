@@ -45,8 +45,8 @@ https://cmake.org/
 
 ## Linux (Ubuntu)
 
-### Instal KDL, Boost, Eigen Dependencies
+### Instal Boost, Eigen, KDL Dependencies
 
 ```
-sudo apt install libeigen3-dev liborocos-kdl-dev
+sudo apt install libboost-all-dev libeigen3-dev liborocos-kdl-dev
 ```
