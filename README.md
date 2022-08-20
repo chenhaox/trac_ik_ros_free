@@ -50,3 +50,8 @@ https://cmake.org/
 ```
 sudo apt install libboost-all-dev libeigen3-dev liborocos-kdl-dev
 ```
+
+### Install and Build NLOpt
+NLOpt
+
+### Build the Program Using CMake
