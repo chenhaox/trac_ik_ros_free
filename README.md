@@ -1,3 +1,5 @@
+This project is archived. Please visit https://github.com/chenhaox/pytracik for the latest version and full installation instructions.
+
 # Dependencies
 - CMake
 - Boost
